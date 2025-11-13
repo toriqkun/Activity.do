@@ -26,7 +26,7 @@ export default function LoginPage() {
 
     localStorage.setItem("user_id", data.user.id);
     localStorage.setItem("just_logged_in", "true");
-    router.push("/dashboard");
+    router.push("/activitydo");
   }
 
   function inputBorder(value: string, focused: boolean) {

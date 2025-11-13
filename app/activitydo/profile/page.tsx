@@ -55,7 +55,7 @@ export default function ProfilePage() {
           </div>
           <div>
             <h2 className="text-xl font-semibold">{profile?.full_name || "Unknown User"}</h2>
-            <p className="text-gray-500">@{profile?.username || "username"}</p>
+            <p className="text-gray-500">@{profile?.username || "user"}</p>
           </div>
           <button onClick={() => setOpenEdit(true)} className="flex gap-[6px] items-center px-4 py-2 ml-auto border bg-blue-500 text-white rounded-[10px] hover:bg-blue-600 text-md cursor-pointer">
             Edit Profile

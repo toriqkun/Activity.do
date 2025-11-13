@@ -15,6 +15,7 @@ interface Todo {
   priority: "low" | "medium" | "high";
   category_id: string | null;
   category?: { id: string; name: string };
+  description: string;
 }
 
 interface Category {
@@ -32,23 +33,91 @@ export default function TodoListPage() {
   const [priorityFilter, setPriorityFilter] = useState<"all" | "low" | "medium" | "high">("all");
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
 
+  const userId = typeof window !== "undefined" ? localStorage.getItem("user_id") : null;
+
   useEffect(() => {
-    const userId = localStorage.getItem("user_id");
     if (!userId) return;
     fetchTodos(userId);
     fetchCategories(userId);
+  }, [userId]);
+
+  useEffect(() => {
+    if (!userId) return;
+    const channel = supabase
+      .channel("realtime_todos")
+      .on("postgres_changes", { event: "*", schema: "public", table: "todo_collaborators" }, (payload) => {
+        console.log("Realtime update:", payload);
+        fetchTodos(userId);
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId]);
+
+  useEffect(() => {
+    const handleRefresh = () => {
+      const userId = localStorage.getItem("user_id");
+      if (userId) fetchTodos(userId);
+    };
+
+    window.addEventListener("refreshTodos", handleRefresh);
+    return () => window.removeEventListener("refreshTodos", handleRefresh);
   }, []);
 
+  // async function fetchTodos(userId: string) {
+  //   const { data, error } = await supabase
+  //     .from("todos")
+  //     .select(
+  //       `
+  //     *,
+  //     category:categories(id, name),
+  //     todo_collaborators!inner (
+  //       user_id,
+  //       status
+  //     )
+  //   `
+  //     )
+  //     .or(`user_id.eq.${userId},todo_collaborators.user_id.eq.${userId}`)
+  //     .eq("todo_collaborators.status", "accepted")
+  //     .order("created_at", { ascending: false });
+
+  //   if (error) {
+  //     console.error("Error fetching todos:", error.message);
+  //     return;
+  //   }
+
+  //   console.log("Fetched todos:", data);
+  //   setTodos(data as Todo[]);
+  // }
+
   async function fetchTodos(userId: string) {
-    const { data, error } = await supabase.from("todos").select("*, category:categories(id, name)").eq("user_id", userId).order("created_at", { ascending: false });
+    const { data, error } = await supabase
+      .from("todos")
+      .select(
+        `
+      *,
+      category:categories(id, name),
+      todo_collaborators(user_id, status)
+    `
+      )
+      .order("created_at", { ascending: false });
 
     if (error) {
       console.error("Error fetching todos:", error.message);
+      toast.error("Gagal memuat data todo");
       return;
     }
 
-    console.log("Fetched todos:", data);
-    setTodos(data as Todo[]);
+    // ✅ Filter manual di sisi client
+    const filtered = (data || []).filter((todo: any) => {
+      const isOwner = todo.user_id === userId;
+      const isAcceptedCollab = todo.todo_collaborators?.some((c: any) => c.user_id === userId && c.status === "accepted");
+      return isOwner || isAcceptedCollab;
+    });
+
+    setTodos(filtered as Todo[]);
   }
 
   async function fetchCategories(userId: string) {
@@ -168,52 +237,6 @@ export default function TodoListPage() {
           </button>
         </div>
       </div>
-
-      {/* Table */}
-      {/* <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-gray-100 rounded-[10px]">
-              <th className="w-10 p-3 text-left">Status</th>
-              <th className="p-3">Task</th>
-              <th className="p-3">Category</th>
-              <th className="p-3">Priority</th>
-              <th className="p-3">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredTodos.map((todo) => (
-              <tr key={todo.id} className="border-b">
-                <td className="p-3 text-center">
-                  <input type="checkbox" checked={todo.completed} onChange={() => toggleCompleted(todo)} className="h-4 w-4 cursor-pointer" />
-                </td>
-                <td className="p-3">{todo.task}</td>
-                <td className="p-3 text-center">{todo.category ? <span className="px-2 py-1 rounded-full text-xs font-medium bg-[#909090] text-[#111111]">{todo.category.name}</span> : "-"}</td>
-                <td className="p-3 text-center">
-                  <span className={`px-2 py-1 rounded-full text-[13px] font-medium text-white`} style={{ backgroundColor: priorityColor(todo.priority) }}>
-                    {formatPriority(todo.priority)}
-                  </span>
-                </td>
-                <td className="p-3 flex gap-2 justify-center">
-                  <button className="text-white p-2 bg-green-500 rounded hover:underline flex items-center gap-1 cursor-pointer">
-                    <Pencil size={16} />
-                  </button>
-                  <button onClick={() => deleteTodo(todo.id)} className="text-white p-2 bg-red-500 rounded hover:underline flex items-center gap-1 cursor-pointer">
-                    <Trash2 size={16} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {filteredTodos.length === 0 && (
-              <tr>
-                <td colSpan={5} className="text-center text-gray-500 py-6">
-                  No todos found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div> */}
       {/* List in Cards */}
       <div className="mt-4">
         {filteredTodos.map((todo) => (
@@ -252,15 +275,15 @@ export default function TodoListPage() {
   );
 }
 
-function priorityColor(priority: "low" | "medium" | "high") {
-  switch (priority) {
-    case "low":
-      return "#16A34A";
-    case "medium":
-      return "#FACC15";
-    case "high":
-      return "#DC2626";
-    default:
-      return "#6B7280";
-  }
-}
+// function priorityColor(priority: "low" | "medium" | "high") {
+//   switch (priority) {
+//     case "low":
+//       return "#16A34A";
+//     case "medium":
+//       return "#FACC15";
+//     case "high":
+//       return "#DC2626";
+//     default:
+//       return "#6B7280";
+//   }
+// }

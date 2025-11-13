@@ -20,6 +20,7 @@ interface Todo {
     id: string;
     name: string;
   };
+  description: string;
 }
 
 interface Props {
@@ -37,6 +38,11 @@ export default function CreateTodoModal({ open, onClose, onCreated, categories, 
   const [priority, setPriority] = useState<"low" | "medium" | "high">("low");
   const [tempCategory, setTempCategory] = useState<Category | null>(null);
   const [loadingAI, setLoadingAI] = useState(false);
+  const [description, setDescription] = useState("");
+
+  const [collaborators, setCollaborators] = useState<any[]>([]);
+  const [searchUser, setSearchUser] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
 
   const userId = typeof window !== "undefined" ? localStorage.getItem("user_id") : null;
 
@@ -52,10 +58,12 @@ export default function CreateTodoModal({ open, onClose, onCreated, categories, 
     if (editingTodo) {
       setTask(editingTodo.task);
       setSelectedCategory(editingTodo.category_id || "");
+      setDescription(editingTodo.description || "");
       setPriority(editingTodo.priority);
     } else {
       setTask("");
       setSelectedCategory("");
+      setDescription("");
       setPriority("low");
     }
   }, [editingTodo, open]);
@@ -125,6 +133,46 @@ export default function CreateTodoModal({ open, onClose, onCreated, categories, 
     }
   }
 
+  async function searchUsers(query: string) {
+    setSearchUser(query);
+    if (!query.trim()) return setSearchResults([]);
+
+    const { data, error } = await supabase.from("profiles").select("id, username, full_name, photo_profile").ilike("username", `%${query}%`).limit(8);
+
+    if (error) {
+      console.error("Search error:", error);
+      toast.error("Failed to search users");
+      return;
+    }
+
+    if (data) {
+      const filtered = data.filter((u) => u.id !== userId);
+      setSearchResults(filtered);
+    }
+  }
+
+  function addCollaborator(user: any) {
+    if (collaborators.some((c) => c.id === user.id)) {
+      toast.error("User already added");
+      return;
+    }
+    setCollaborators((prev) => [
+      ...prev,
+      {
+        id: user.id,
+        username: user.username,
+        full_name: user.full_name,
+        photo_profile: user.photo_profile,
+      },
+    ]);
+    setSearchResults([]);
+    setSearchUser("");
+  }
+
+  function removeCollaborator(id: string) {
+    setCollaborators((prev) => prev.filter((c) => c.id !== id));
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!userId) return toast.error("User not logged in!");
@@ -158,24 +206,90 @@ export default function CreateTodoModal({ open, onClose, onCreated, categories, 
             category_id: finalCategoryId,
             priority,
             completed: editingTodo.completed,
+            description,
           })
           .eq("id", editingTodo.id);
 
         if (error) throw error;
         toast.success("Successfully updated todo");
       } else {
-        const { error } = await supabase.from("todos").insert([
-          {
-            task,
-            user_id: userId,
-            category_id: finalCategoryId,
-            priority,
-            completed: false,
-          },
-        ]);
+        const { data: newTodo, error } = await supabase
+          .from("todos")
+          .insert([
+            {
+              task,
+              user_id: userId,
+              category_id: finalCategoryId,
+              priority,
+              completed: false,
+              description,
+            },
+          ])
+          .select()
+          .single();
 
         if (error) throw error;
-        toast.success("Successfully created todo");
+
+        // for (const collab of collaborators) {
+        //   await supabase.from("todo_collaborators").insert([
+        //     {
+        //       todo_id: newTodo.id,
+        //       user_id: collab.id,
+        //       invited_by: userId,
+        //     },
+        //   ]);
+
+        //   await supabase.from("notifications").insert([
+        //     {
+        //       user_id: collab.id,
+        //       invited_by: userId,
+        //       type: "collab_invite",
+        //       todo_id: newTodo.id,
+        //       message: `You were invited to collaborate on: ${task}`,
+        //       created_at: new Date().toISOString(),
+        //     },
+        //   ]);
+        // }
+
+        for (const collab of collaborators) {
+          // Insert ke todo_collaborators
+          const { error: collabErr } = await supabase.from("todo_collaborators").insert([
+            {
+              todo_id: newTodo.id,
+              user_id: collab.id,
+              invited_by: userId,
+              status: "pending", // ✅ tambahkan ini
+            },
+          ]);
+
+          if (collabErr) {
+            console.error("Collab insert error:", collabErr.message);
+            continue; // skip ke collab berikutnya
+          }
+
+          // Insert notifikasi ke user yang diundang
+          const { error: notifErr } = await supabase.from("notifications").insert([
+            {
+              user_id: collab.id, // penerima notifikasi
+              invited_by: userId, // pengundang
+              type: "collab_invite",
+              todo_id: newTodo.id,
+              message: `You were invited to collaborate on: ${task}`,
+              read: false, // ✅ tambahkan flag unread
+              created_at: new Date().toISOString(),
+            },
+          ]);
+
+          if (notifErr) {
+            console.error("Notif insert error:", notifErr.message);
+          }
+        }
+
+        if (collaborators.length > 0) {
+          toast.success("Successfully created todo with collaborators 🤝");
+        } else {
+          toast.success("Successfully created todo ✅");
+        }
       }
 
       onCreated();
@@ -247,6 +361,55 @@ export default function CreateTodoModal({ open, onClose, onCreated, categories, 
                 toast.success(`Category ${name} successfully added (pending)`);
               }}
             />
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Description</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Add more details about this task..."
+              className="mt-1 border rounded w-full p-2 focus:outline-none resize-none"
+              rows={3}
+            />
+          </div>
+
+          {/* Collaboration Section */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Collaborators</label>
+
+            <input value={searchUser} onChange={(e) => searchUsers(e.target.value)} placeholder="Search by username..." className="border rounded w-full p-2 focus:outline-none" />
+
+            {/* Search results dropdown */}
+            {searchResults.length > 0 && (
+              <div className="border rounded mt-1 bg-white shadow max-h-40 overflow-y-auto z-10">
+                {searchResults.map((user) => (
+                  <div key={user.id} onClick={() => addCollaborator(user)} className="p-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2">
+                    {user.photo_profile && <img src={user.photo_profile} alt="avatar" className="w-6 h-6 rounded-full object-cover" />}
+                    <div className="flex flex-col">
+                      <span className="font-medium">{user.username}</span>
+                      <span className="text-xs text-gray-500">{user.full_name}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Selected collaborators */}
+            {collaborators.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {collaborators.map((c) => (
+                  <div key={c.id} className="flex items-center gap-2 bg-gray-300 px-2 rounded-md text-sm">
+                    {c.photo_profile && <img src={c.photo_profile} alt="avatar" className="w-5 h-5 rounded-full object-cover" />}
+                    <span className="font-medium">{c.username || c.full_name || "Unknown"}</span>
+                    <button onClick={() => removeCollaborator(c.id)} type="button" className="text-lg text-gray-700 hover:text-gray-900 font-bold">
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Priority */}
