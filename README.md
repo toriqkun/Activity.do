@@ -1,4 +1,4 @@
-📝 TodoCollab — Collaborative Todo App
+## 📝 TodoCollab — Collaborative Todo App
 
 A modern, real-time collaborative Todo Management App built with Next.js, Supabase, and Tailwind CSS.
 Aplikasi ini memungkinkan pengguna untuk mengelola tugas harian, berbagi todo dengan kolaborator, mengatur kategori, dan memprioritaskan pekerjaan secara mudah serta responsif.
@@ -52,7 +52,3 @@ src/
  └─ types/
      └─ todo.ts                → Interface Todo
 ```
-
-Supabase Auth dengan Email/Password
-
-Session handling + middleware proteksi route
