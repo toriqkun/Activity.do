@@ -97,5 +97,5 @@ npm run dev
 ```
 
 Akses:
-👉 http://localhost:3000
+- 👉 http://localhost:3000
 
