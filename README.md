@@ -36,7 +36,15 @@ Aplikasi ini memungkinkan pengguna untuk mengelola tugas harian, berbagi todo de
 
 ---
 
-```vbnet
+## 🛠️ Tech Stack
+
+- **Frontend** -	Next.js, TypeScript, Tailwind CSS
+- **Backend** -	Next.js, Supabase
+- **Database** -	Supabase, PostgreSQL
+
+---
+
+```bash
 src/
  ├─ app/
  │   ├─ layout.tsx
@@ -52,3 +60,42 @@ src/
  └─ types/
      └─ todo.ts                → Interface Todo
 ```
+
+---
+## 🚀 Getting Started
+
+1️⃣ **Clone repository**
+
+```bash
+git clone https://github.com/toriqkun/Activity.do.git
+cd todocollab
+```
+2️⃣ **Install dependencies**
+
+```bash
+npm install
+```
+3️⃣ **Setup Supabase**
+
+Create project → create table → copy
+- NEXT_PUBLIC_SUPABASE_URL
+- NEXT_PUBLIC_SUPABASE_ANON_KEY
+Lalu buat file:
+```lua
+.env.local
+```
+Isi:
+```ini
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+```
+
+4️⃣ **Start development server**
+
+```bash
+npm run dev
+```
+
+Akses:
+👉 http://localhost:3000
+
