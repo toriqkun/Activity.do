@@ -85,7 +85,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data, error } = await supabase.from("notifications").select("*").eq("user_id", user.id).order("created_at", { ascending: false });
+      const { data, error } = await supabase
+        .from("notifications")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
 
       if (!error && data) {
         setNotifications(data);
@@ -150,23 +154,32 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="mx-auto flex items-center justify-between px-6 h-16">
           {/* Logo / Brand */}
           <Link href="/activitydo" className="text-xl font-bold">
-            <img src="/logo.webp" alt="" className="w-34" />
+            <img src="/public/logo.webp" alt="" className="w-34" />
           </Link>
 
           {/* Nav Links */}
           <nav className="flex items-center">
-            <Link href="/activitydo" className={`flex items-center h-16 px-7 font-medium hover:text-gray-900 ${pathname === "/activitydo" ? "font-semibold text-gray-900" : "text-gray-500"}`}>
+            <Link
+              href="/activitydo"
+              className={`flex items-center h-16 px-7 font-medium hover:text-gray-900 ${
+                pathname === "/activitydo" ? "font-semibold text-gray-900" : "text-gray-500"
+              }`}
+            >
               Home
             </Link>
             <Link
               href="/activitydo/todo-app"
-              className={`flex items-center h-16 px-7 font-medium text-gray-500 hover:text-gray-900 ${pathname.startsWith("/activitydo/todo-app") ? "font-semibold text-gray-900" : ""}`}
+              className={`flex items-center h-16 px-7 font-medium text-gray-500 hover:text-gray-900 ${
+                pathname.startsWith("/activitydo/todo-app") ? "font-semibold text-gray-900" : ""
+              }`}
             >
               Todo
             </Link>
             <Link
               href="/activitydo/dashboard"
-              className={`flex items-center h-15 px-7 font-medium text-gray-500 hover:text-gray-900 ${pathname === "/activitydo/dashboard" ? "font-semibold text-gray-900" : ""}`}
+              className={`flex items-center h-15 px-7 font-medium text-gray-500 hover:text-gray-900 ${
+                pathname === "/activitydo/dashboard" ? "font-semibold text-gray-900" : ""
+              }`}
             >
               Dashboard
             </Link>
@@ -176,9 +189,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-4 relative">
             {/* Notification Icon */}
             <div className="relative">
-              <button onClick={() => setOpenNotif((prev) => !prev)} className="relative p-2 hover:bg-gray-100 rounded-full transition">
+              <button
+                onClick={() => setOpenNotif((prev) => !prev)}
+                className="relative p-2 hover:bg-gray-100 rounded-full transition"
+              >
                 <Bell size={22} className="text-gray-700" />
-                {unreadCount > 0 && <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">{unreadCount}</span>}
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                    {unreadCount}
+                  </span>
+                )}
               </button>
 
               {/* Dropdown Notif */}
@@ -190,7 +210,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     <div className="p-3 text-center text-gray-500 text-sm">No notifications</div>
                   ) : (
                     notifications.map((notif) => (
-                      <div key={notif.id} className={`p-3 border-b text-sm hover:bg-gray-100 ${!notif.read ? "bg-blue-50" : ""}`}>
+                      <div
+                        key={notif.id}
+                        className={`p-3 border-b text-sm hover:bg-gray-100 ${!notif.read ? "bg-blue-50" : ""}`}
+                      >
                         <p className="text-gray-800">{notif.message}</p>
                         <p className="text-xs text-gray-400 mt-1">{new Date(notif.created_at).toLocaleString()}</p>
 
@@ -204,7 +227,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                                 if (!user) return toast.error("User not logged in");
 
                                 // 1️⃣ Update status collab ke accepted
-                                const { error: updateError } = await supabase.from("todo_collaborators").update({ status: "accepted" }).eq("todo_id", notif.todo_id).eq("user_id", user.id);
+                                const { error: updateError } = await supabase
+                                  .from("todo_collaborators")
+                                  .update({ status: "accepted" })
+                                  .eq("todo_id", notif.todo_id)
+                                  .eq("user_id", user.id);
 
                                 if (updateError) {
                                   console.error(updateError);
@@ -251,7 +278,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                                 if (!user) return toast.error("User not logged in");
 
                                 // 1️⃣ Update status collab ke rejected
-                                const { error: updateError } = await supabase.from("todo_collaborators").update({ status: "rejected" }).eq("todo_id", notif.todo_id).eq("user_id", user.id);
+                                const { error: updateError } = await supabase
+                                  .from("todo_collaborators")
+                                  .update({ status: "rejected" })
+                                  .eq("todo_id", notif.todo_id)
+                                  .eq("user_id", user.id);
 
                                 if (updateError) {
                                   console.error(updateError);
@@ -326,18 +357,32 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   setOpenNotif(false);
                 }}
               >
-                <img src={profile?.photo_profile || "/default-avatar.png"} alt="Avatar" className="w-11 h-11 rounded-full border-2 border-gray-500 object-cover" />
-                <ChevronDown size={15} className={`text-gray-900 ml-1 ${openDropdown ? "rotate-180" : ""} transition`} />
+                <img
+                  src={profile?.photo_profile || "/default-avatar.png"}
+                  alt="Avatar"
+                  className="w-11 h-11 rounded-full border-2 border-gray-500 object-cover"
+                />
+                <ChevronDown
+                  size={15}
+                  className={`text-gray-900 ml-1 ${openDropdown ? "rotate-180" : ""} transition`}
+                />
               </button>
 
               {openDropdown && (
                 <div className="absolute right-0 mt-2 w-40 border border-gray-400 bg-white text-gray-800 rounded shadow-lg overflow-hidden z-50">
-                  <Link href="/activitydo/profile" className="block px-4 py-2 hover:bg-gray-200 cursor-pointer" onClick={() => setOpenDropdown(false)}>
+                  <Link
+                    href="/activitydo/profile"
+                    className="block px-4 py-2 hover:bg-gray-200 cursor-pointer"
+                    onClick={() => setOpenDropdown(false)}
+                  >
                     <span className="flex gap-4">
                       <CircleUser /> Profile
                     </span>
                   </Link>
-                  <button onClick={handleLogout} className="block w-full text-left text-red-500 px-4 py-2 hover:bg-gray-200 cursor-pointer">
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full text-left text-red-500 px-4 py-2 hover:bg-gray-200 cursor-pointer"
+                  >
                     <span className="flex gap-4">
                       <LogOut size={21} className="ml-[2px]" /> Logout
                     </span>
