@@ -154,7 +154,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="mx-auto flex items-center justify-between px-6 h-16">
           {/* Logo / Brand */}
           <Link href="/activitydo" className="text-xl font-bold">
-            <img src="//logo.webp" alt="" className="w-34" />
+            <img src="/logo.webp" alt="" className="w-34" />
           </Link>
 
           {/* Nav Links */}
