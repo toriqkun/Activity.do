@@ -40,7 +40,7 @@ Do not add explanations, introductions, or closing remarks.
     const text = response.text();
 
     return NextResponse.json({ description: text.trim() });
-  } catch (error: any) {
+  } catch (error) {
     console.error("AI Generation Error:", error);
     return NextResponse.json({ error: "Failed to generate description" }, { status: 500 });
   }

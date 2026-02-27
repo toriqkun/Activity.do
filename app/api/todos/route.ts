@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.json({ todos });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Fetch Todos Error:", error);
     return NextResponse.json({ error: "Gagal mengambil data todo" }, { status: 500 });
   }
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ todo });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Create Todo Error:", error);
     return NextResponse.json({ error: "Gagal membuat todo" }, { status: 500 });
   }

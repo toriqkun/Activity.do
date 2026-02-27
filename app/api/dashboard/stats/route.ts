@@ -33,13 +33,13 @@ export async function GET(req: NextRequest) {
 
     const stats = {
       all: todos.length,
-      progress: todos.filter((t) => !t.completed).length,
-      done: todos.filter((t) => t.completed).length,
-      favorites: todos.filter((t) => t.favorites).length,
+      progress: todos.filter((t: any) => !t.completed).length,
+      done: todos.filter((t: any) => t.completed).length,
+      favorites: todos.filter((t: any) => t.favorites).length,
     };
 
     return NextResponse.json({ stats });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Dashboard Stats Error:", error);
     return NextResponse.json({ error: "Gagal mengambil statistik" }, { status: 500 });
   }
