@@ -1,101 +1,132 @@
-## 📝 TodoCollab — Collaborative Todo App
+# 📝 Activity.do — Collaborative Task Management
 
-A modern, real-time collaborative Todo Management App built with Next.js, Supabase, and Tailwind CSS.
-Aplikasi ini memungkinkan pengguna untuk mengelola tugas harian, berbagi todo dengan kolaborator, mengatur kategori, dan memprioritaskan pekerjaan secara mudah serta responsif.
+Activity.do is a modern, high-performance, and aesthetic Task Management application designed for seamless real-time collaboration. Built with **Next.js 15**, **Prisma**, and **Pusher**, it provides a premium experience for teams and individuals to organize their productivity.
 
 ---
 
 ## ✨ Features
 
-✅ **Todo Management**
-- Add, edit, delete to-dos
-- Mark as completed/incomplete
-- Set priority: Low, Medium, High
-- Mark as Favorites
-- Filter by category & priority
+### 🔐 Secure Authentication & User Management
+- **Custom JWT Auth**: Secure login and registration system.
+- **Email Verification**: Account activation via secure email tokens.
+- **Password Recovery**: Robust "Forgot Password" and "Reset Password" flow.
+- **Responsive Profile**: Customizable user profiles with avatar support.
 
-👥 **Collaboration (Realtime)**
-- Invite collaborators to work on todos together
-- Any changes will be automatically synced
-- Access rights are based on the todo_collaborators table
+### 👥 Real-Time Collaboration
+- **Shared Workspaces**: Invite other users to collaborate on specific tasks.
+- **Instant Notifications**: Real-time alerts for invitations and task updates using Pusher.
+- **Live Sync**: Changes are reflected across all collaborator devices without page refresh.
 
-🗂 **Categories**
-- Custom categories per user
-- Todos can be mapped to specific categories
-- Category badge UI on each card
+### ⚡ Smart Productivity Tools
+- **AI-Powered**: Integration with **Google Gemini AI** for generating task descriptions and category suggestions.
+- **Drag & Drop**: Intuitive task organization with smooth animations (`hello-pangea/dnd`).
+- **Kanban & List Views**: Flexible views to manage your workflow.
+- **Categories & Priorities**: Organize tasks with custom categories and color-coded priority levels.
 
-⚡ **Realtime Update**
-- Supabase Real-Time Subscription
-- To-dos change instantly without refreshing.
-
-🎨 **Modern UI**
-- Next.js App Router
-- Tailwind CSS + DaisyUI/shadcn
-- Create Todo capital
-- Neat & responsive dashboard layout
+### 🎨 Premium UI/UX
+- **Aesthetic Landing Page**: Modern design with parallax scroll effects and glassmorphism.
+- **Responsive Design**: Fully optimized for mobile (360px+), tablet, and desktop.
+- **Smooth Animations**: powered by `framer-motion` for a fluid user interface.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Frontend** -	Next.js, TypeScript, Tailwind CSS
-- **Backend** -	Next.js, Supabase
-- **Database** -	Supabase, PostgreSQL
+### Frontend
+- **Framework**: [Next.js 15 (App Router)](https://nextjs.org/)
+- **Library**: React 19
+- **Styling**: Tailwind CSS 4
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
+
+### Backend & Database
+- **Runtime**: Node.js
+- **ORM**: [Prisma](https://www.prisma.io/)
+- **Database**: PostgreSQL (via [Neon Database](https://neon.tech/))
+- **Real-time**: [Pusher](https://pusher.com/)
+- **AI**: [Google Generative AI (Gemini)](https://ai.google.dev/)
+- **Email**: Nodemailer (SMTP)
 
 ---
 
-```bash
-src/
- ├─ app/
- │   ├─ layout.tsx
- │   ├─ page.tsx
- │   └─ todos/
- │       ├─ page.tsx           → TodoListPage
- │       └─ components/
- │           ├─ TodoCard.tsx
- │           ├─ CreateTodoModal.tsx
- │           └─ CategoryBadge.tsx
- ├─ lib/
- │   └─ supabaseClient.ts
- └─ types/
-     └─ todo.ts                → Interface Todo
+## 📂 Project Structure
+
+```text
+activity.do/
+ ├─ app/                  # Next.js App Router (Pages & API)
+ │   ├─ api/              # Backend Route Handlers (Auth, Todos, etc.)
+ │   ├─ activitydo/       # Main Dashboard & Todo Application
+ │   └─ ...               # Auth pages (Login, Register, Reset)
+ ├─ components/           # Reusable UI Components
+ ├─ lib/                  # Library configs (Prisma, Pusher, Gemini)
+ ├─ prisma/               # Database Schema & Migrations
+ ├─ public/               # Static Assets (Images, Icons)
+ └─ package.json          # Dependencies & Scripts
 ```
 
 ---
+
 ## 🚀 Getting Started
 
-1️⃣ **Clone repository**
-
+### 1️⃣ Clone the repository
 ```bash
 git clone https://github.com/toriqkun/Activity.do.git
-cd todocollab
+cd Activity.do
 ```
-2️⃣ **Install dependencies**
 
+### 2️⃣ Install dependencies
 ```bash
 npm install
 ```
-3️⃣ **Setup Supabase**
 
-Create project → create table → copy
-- NEXT_PUBLIC_SUPABASE_URL
-- NEXT_PUBLIC_SUPABASE_ANON_KEY
-Lalu buat file:
-```lua
-.env.local
+### 3️⃣ Setup Environment Variables
+Create a `.env` file in the root directory and fill in the following:
+
+```env
+# Database
+DATABASE_URL="your-postgresql-url"
+
+# Real-time (Pusher)
+PUSHER_APP_ID="..."
+NEXT_PUBLIC_PUSHER_KEY="..."
+PUSHER_SECRET="..."
+NEXT_PUBLIC_PUSHER_CLUSTER="..."
+
+# AI (Google Gemini)
+GEMINI_API_KEY="..."
+
+# Authentication (JWT)
+JWT_SECRET="..."
+
+# Email (SMTP)
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT=587
+SMTP_USER="your-email@gmail.com"
+SMTP_PASS="your-app-password"
+FROM_EMAIL="your-email@gmail.com"
+FROM_NAME="Activity.do"
+
+# App
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
-Isi:
-```ini
-NEXT_PUBLIC_SUPABASE_URL=...
-NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+
+### 4️⃣ Database Migration
+```bash
+npx prisma db push
+npx prisma generate
 ```
 
-4️⃣ **Start development server**
-
+### 5️⃣ Run the development server
 ```bash
 npm run dev
 ```
 
-Akses:
-- 👉 http://localhost:3000
+Visit [http://localhost:3000](http://localhost:3000) to see the app in action!
 
+---
+
+## 🛡️ License
+Distributed under the MIT License. See `LICENSE` for more information.
+
+---
+Crafted with ❤️ by [toriqkun](https://github.com/toriqkun)
