@@ -17,11 +17,17 @@ const globalForPrisma = globalThis as unknown as {
 
 const prismaClientSingleton = () => {
   const url = process.env.DATABASE_URL;
+  
+  // Prevent build crash if DATABASE_URL is missing on Vercel dashboard
   if (!url) {
-    throw new Error("DATABASE_URL is missing");
+    console.warn("⚠️ DATABASE_URL is missing. If this is a build phase, it's expected unless you need DB access during pre-rendering.");
+    // Return a dummy client or handle based on phase
+    if (process.env.NEXT_PHASE === "phase-production-build") {
+        return null as any;
+    }
+    throw new Error("DATABASE_URL is missing. Please add it to your environment variables.");
   }
   
-  // Use the PrismaNeon factory as the adapter
   const adapter = new PrismaNeon({ connectionString: url });
   
   return new PrismaClient({
