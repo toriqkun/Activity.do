@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
 import { ClipboardList, CheckCircle, Clock, Star } from "lucide-react";
 import Link from "next/link";
 
@@ -17,15 +16,14 @@ export default function DashboardPage() {
     if (!userId) return;
 
     (async () => {
-      const { data } = await supabase.from("todos").select("*").eq("user_id", userId);
-
-      if (data) {
-        const all = data.length;
-        const done = data.filter((t) => t.completed).length;
-        const progress = data.filter((t) => !t.completed).length;
-        const favorites = data.filter((t) => t.favorites).length;
-
-        setStats({ all, progress, done, favorites });
+      try {
+        const res = await fetch(`/api/dashboard/stats?userId=${userId}`);
+        const data = await res.json();
+        if (data.stats) {
+          setStats(data.stats);
+        }
+      } catch (err) {
+        console.error("Dashboard error:", err);
       }
     })();
   }, []);
@@ -36,33 +34,33 @@ export default function DashboardPage() {
       count: stats.all,
       color: "bg-blue-600",
       icon: <ClipboardList className="w-13 h-13 text-[#494646b8]" />,
-      href: "/dashboard/todo-app",
+      href: "/activitydo/todo-app",
     },
     {
       title: "Progress",
       count: stats.progress,
       color: "bg-yellow-500",
       icon: <Clock className="w-13 h-13 text-[#494646b8]" />,
-      href: "/dashboard/todo-app?status=progress",
+      href: "/activitydo/todo-app?status=progress",
     },
     {
       title: "Done",
       count: stats.done,
       color: "bg-green-600",
       icon: <CheckCircle className="w-13 h-13 text-[#494646b8]" />,
-      href: "/dashboard/todo-app?status=done",
+      href: "/activitydo/todo-app?status=done",
     },
     {
       title: "Favorites",
       count: stats.favorites,
       color: "bg-red-600",
       icon: <Star className="w-13 h-13 text-[#494646b8]" />,
-      href: "/dashboard/todo-app?status=favorites",
+      href: "/activitydo/todo-app?status=favorites",
     },
   ];
 
   return (
-    <div className="max-w-6xl items-center mx-auto mt-20">
+    <div className="max-w-6xl items-center mx-auto px-8 py-10">
       <h1 className="text-4xl font-bold">Dashboard</h1>
       <p className="text-lg text-gray-500 ml-[2px] mb-8">Check your todo list, based on all, progress, completed, and favorites.</p>
 

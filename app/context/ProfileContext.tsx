@@ -2,8 +2,12 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 
 type Profile = {
-  full_name?: string;
+  fullName?: string;
   username?: string;
+  email?: string;
+  photoProfile?: string | null;
+  // Keep these for backward compatibility during migration
+  full_name?: string;
   photo_profile?: string | null;
 };
 

@@ -6,7 +6,7 @@ import Image from "next/image";
 
 export default function HomePage() {
   return (
-    <div className="relative h-screen text-white overflow-hidden">
+    <div className="relative min-h-screen text-white overflow-hidden">
 
       {/* Overlay Content */}
       <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 py-20 md:py-35">
@@ -63,7 +63,7 @@ export default function HomePage() {
 
         {/* CTA Button */}
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.8, duration: 0.6 }}>
-          <Link href="/activitydo/todo-app" className="bg-blue-600 text-gray-900 font-semibold px-8 py-3 rounded-full text-lg hover:bg-blue-700 transition">
+          <Link href="/activitydo/todo-app" className="bg-blue-600 text-white font-semibold px-8 py-3 rounded-full text-lg hover:bg-blue-700 transition">
             Get Started
           </Link>
         </motion.div>

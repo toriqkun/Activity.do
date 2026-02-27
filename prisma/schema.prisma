@@ -1,0 +1,114 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                String         @id @default(cuid())
+  email             String         @unique
+  username          String?        @unique
+  fullName          String?
+  photoProfile      String?
+  birthOfDate       DateTime?
+  phone             String?
+  bio               String?
+  password          String
+  todos             Todo[]         @relation("TodoOwner")
+  collaborations    Collaborator[]
+  notifications     Notification[] @relation("NotificationRecipient")
+  sentNotifications Notification[] @relation("NotificationSender")
+  comments          Comment[]
+  categories        Category[]
+  createdAt         DateTime       @default(now())
+  isVerified        Boolean        @default(false)
+  verificationToken String?
+  tokenExpiry       DateTime?
+  resetToken        String?
+  resetTokenExpiry  DateTime?
+}
+
+model Todo {
+  id            String         @id @default(cuid())
+  task          String
+  description   String?
+  completed     Boolean        @default(false)
+  favorites     Boolean        @default(false)
+  priority      Priority       @default(MEDIUM)
+  ownerId       String
+  owner         User           @relation("TodoOwner", fields: [ownerId], references: [id])
+  categoryId    String?
+  category      Category?      @relation(fields: [categoryId], references: [id])
+  collaborators Collaborator[]
+  comments      Comment[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  position      Int            @default(0)
+
+  @@index([ownerId])
+}
+
+model Category {
+  id     String @id @default(cuid())
+  name   String
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  todos  Todo[]
+
+  @@unique([name, userId])
+}
+
+model Collaborator {
+  id     String       @id @default(cuid())
+  todoId String
+  todo   Todo         @relation(fields: [todoId], references: [id], onDelete: Cascade)
+  userId String
+  user   User         @relation(fields: [userId], references: [id])
+  status CollabStatus @default(PENDING)
+
+  @@unique([todoId, userId])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation("NotificationRecipient", fields: [userId], references: [id])
+  senderId  String?
+  sender    User?            @relation("NotificationSender", fields: [senderId], references: [id])
+  message   String
+  type      NotificationType
+  isRead    Boolean          @default(false)
+  todoId    String?
+  createdAt DateTime         @default(now())
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  todoId    String
+  todo      Todo     @relation(fields: [todoId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  content   String
+  createdAt DateTime @default(now())
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum CollabStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+enum NotificationType {
+  ASSIGNED
+  UPDATED
+  COMMENTED
+  COLLAB_INVITE
+}

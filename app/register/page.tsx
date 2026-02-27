@@ -54,25 +54,31 @@ export default function RegisterPage() {
       return;
     }
 
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          password,
           username,
-          full_name: fullname,
-          photo_profile: "",
-        },
-      },
-    });
+          fullName: fullname,
+        }),
+      });
 
-    if (authError || !authData.user) {
-      setSubmitError(authError?.message || "Failed to register");
-      return;
+      const data = await res.json();
+
+      if (!res.ok) {
+        setSubmitError(data.error || "Gagal mendaftar");
+        return;
+      }
+
+      toast.success("Berhasil mendaftar! Silakan login.");
+      router.push("/login");
+    } catch (err) {
+      setSubmitError("Terjadi kesalahan koneksi");
     }
 
-    toast.success("Successfully registered");
-    router.push("/login");
   }
 
   function inputBorder(type: "email" | "password" | "username" | "fullname", value: string, focused: boolean) {
@@ -169,11 +175,11 @@ export default function RegisterPage() {
             </p>
           )}
         </div>
-        <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white mt-5 px-4 py-2 rounded-full w-full cursor-pointer">
+        <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white mt-6 px-4 py-2 rounded-full w-full cursor-pointer">
           Sign up
         </button>
         <p className="mt-3 text-sm text-center text-gray-400">
-          Already have an account?
+          Already have an account?{" "}
           <a href="/login" className="text-blue-500 hover:underline">
             Sign in
           </a>

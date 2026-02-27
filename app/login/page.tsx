@@ -14,19 +14,31 @@ export default function LoginPage() {
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-    if (error || !data.user) {
-      setError("Incorrect email or password");
-      return;
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Email atau password salah");
+        return;
+      }
+
+      // Simpan user info ke localStorage
+      localStorage.setItem("user_id", data.user.id);
+      localStorage.setItem("user_email", data.user.email);
+      localStorage.setItem("user_name", data.user.username);
+      localStorage.setItem("just_logged_in", "true");
+      
+      router.push("/activitydo");
+    } catch (err) {
+      setError("Terjadi kesalahan koneksi");
     }
 
-    localStorage.setItem("user_id", data.user.id);
-    localStorage.setItem("just_logged_in", "true");
-    router.push("/activitydo");
   }
 
   function inputBorder(value: string, focused: boolean) {
