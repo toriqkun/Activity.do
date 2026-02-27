@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
@@ -64,7 +66,7 @@ export async function POST(req: NextRequest) {
       message: "Registrasi berhasil! Silakan cek email Anda untuk verifikasi.",
       user: { id: user.id, email: user.email, username: user.username }
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Registration Error:", error);
     return NextResponse.json({ error: "Registration failed" }, { status: 500 });
   }
