@@ -1,36 +1,36 @@
-# 📝 Activity.do — Collaborative Task Management
+# Activity.do — Collaborative Task Management
 
 Activity.do is a modern, high-performance, and aesthetic Task Management application designed for seamless real-time collaboration. Built with **Next.js 15**, **Prisma**, and **Pusher**, it provides a premium experience for teams and individuals to organize their productivity.
 
 ---
 
-## ✨ Features
+## Features
 
-### 🔐 Secure Authentication & User Management
+### Secure Authentication & User Management
 - **Custom JWT Auth**: Secure login and registration system.
 - **Email Verification**: Account activation via secure email tokens.
 - **Password Recovery**: Robust "Forgot Password" and "Reset Password" flow.
 - **Responsive Profile**: Customizable user profiles with avatar support.
 
-### 👥 Real-Time Collaboration
+### Real-Time Collaboration
 - **Shared Workspaces**: Invite other users to collaborate on specific tasks.
 - **Instant Notifications**: Real-time alerts for invitations and task updates using Pusher.
 - **Live Sync**: Changes are reflected across all collaborator devices without page refresh.
 
-### ⚡ Smart Productivity Tools
+### Smart Productivity Tools
 - **AI-Powered**: Integration with **Google Gemini AI** for generating task descriptions and category suggestions.
 - **Drag & Drop**: Intuitive task organization with smooth animations (`hello-pangea/dnd`).
 - **Kanban & List Views**: Flexible views to manage your workflow.
 - **Categories & Priorities**: Organize tasks with custom categories and color-coded priority levels.
 
-### 🎨 Premium UI/UX
+### Premium UI/UX
 - **Aesthetic Landing Page**: Modern design with parallax scroll effects and glassmorphism.
 - **Responsive Design**: Fully optimized for mobile (360px+), tablet, and desktop.
 - **Smooth Animations**: powered by `framer-motion` for a fluid user interface.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Frontend
 - **Framework**: [Next.js 15 (App Router)](https://nextjs.org/)
@@ -49,7 +49,7 @@ Activity.do is a modern, high-performance, and aesthetic Task Management applica
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```text
 activity.do/
@@ -66,7 +66,7 @@ activity.do/
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### 1️⃣ Clone the repository
 ```bash
@@ -124,9 +124,3 @@ npm run dev
 Visit [http://localhost:3000](http://localhost:3000) to see the app in action!
 
 ---
-
-## 🛡️ License
-MIT
-
----
-Crafted with by [toriqkun](https://github.com/toriqkun)
